@@ -47,12 +47,12 @@ def GetRepairType(sn):
 
 
 def Receiver(cluster):
-	if cluster =='BJS':
-		mail_to="bjs-datatech@amazon.com"
-		mail_cc="dco-managers-bjs@amazon.com"
-	if cluster =='PEK':
-		mail_to="pek-datatech@amazon.com"
-                mail_cc="dco-managers-pek@amazon.com"
+	if cluster =='SITE':
+		mail_to="mailaddress1"
+		mail_cc="mailaddress2"
+	if cluster =='SITE1':
+		mail_to="mailaddress3"
+                mail_cc="mailaddress4"
 	return mail_to, mail_cc
 
 def GetSite():
@@ -126,7 +126,7 @@ def SendEmail(mail_to,mail_cc,cluster):
 	msg['to'] = mail_to
 	msg['cc'] = mail_cc
 	#msg['cc'] = ','.join(mail_cc)
-	msg['from'] = 'hddreport@amazon.com'
+	msg['from'] = 'mailaddress5'
 	msg['subject'] = 'Daily HDD Destroy Report for'+" "+cluster
 	try:
 		server=smtplib.SMTP('localhost')
@@ -144,14 +144,14 @@ if __name__=='__main__':
 	html=''
 	sites=GetSite()
 	for site in sites:
-		if site in ('PEK7','BJS11','BJS20','BJS10'):
+		if site in ('site1','site2','site3','site4'):
 			time=12
 		else:
 			time=24
 		context=DailyReport(site, time)
 		html+=context
 		s+=1
-	html+='<p>Please contact bwwa@amazon.com if there is any question.</p>'
+	html+='<p>Please contact mailaddress7 if there is any question.</p>'
 	if s==len(sites):
 		mail_to,mail_cc=Receiver(sites[0][:3])
 		SendEmail(mail_to, mail_cc,sites[0][:3])
