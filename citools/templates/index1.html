@@ -1,0 +1,114 @@
+{% extends "admin/base_site.html" %}
+
+{% load staticfiles %}
+
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NRE RMA Tool">
+    <meta name="author" content="loucaa">
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/sticky-footer-navbar.css' %}" rel="stylesheet">
+    <link href="{% static 'css/is-it-down.css' %}" rel="stylesheet">
+  </head>
+
+  <body>
+
+  <style type="text/css">
+
+    .jumbotron{
+      height:230px;
+    }
+
+  </style>
+
+     <script src="{% static '/js/jquery-1.11.0.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+
+      <!-- Begin page content -->
+      <div class="container">
+      <div id="is-it-down-container"></div>
+      	<div class="row">
+      		<div class="col-md-4">
+      			<div class="jumbotron">
+      			<h2><a href="/admin/logistics/receiving/add/" title="RMA Tool">Receive Parts</a></h2>
+      			<p>Receive parts</p>
+      			</div>
+      		</div>
+      		<div class="col-md-4">
+      			<div class="jumbotron">
+      			<h2><a href="/topgun/" title="Top Gun">Top Gun</a></h2>
+      			<p>Portal For Device Operations</p>
+      			</div>
+      		</div>
+      		<div class="col-md-4">
+      			<div class="jumbotron">
+      			<h2><a href="/admin/logistics/receiving/" title="View Receiving">View Receiving</a></h2>
+      			<p>View Receiving</p>
+      			</div>
+      		</div>
+          <div class="col-md-4">
+            <div class="jumbotron">
+            <h2><a href="/oncall/" title="OnCall">On Call</a></h2>
+            <p>NRE On Call Scheduling Tool</p>
+            </div>
+          </div> 
+          <div class="col-md-4">
+            <div class="jumbotron">
+            <h2><a href="/ttage/" title="TT Age">TT Age</a></h2>
+            <p>Ticket Age - Ticketing Statistics</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="jumbotron">
+            <h2><a href="/rambo/" title="Rambo">Rambo</a> <small>First Blood</small></h2>
+            <p>CM Workflow Automation</p>
+            </div>
+          </div> 
+          <div class="col-md-4">
+            <div class="jumbotron construction">
+            <h2><a href="/netengdockets/" title="NetengDockets">Neteng Dockets</a></h2>
+            <p>L1 and L2 Approval Dockets</p>
+            </div>
+          </div> 
+          <div class="col-md-4">
+            <div class="jumbotron">
+            <h2><a href="/cmdocket/" title="CmDocket">CM Docket</a></h2>
+            <p>CM Docket for L3 Review</p>
+            </div>
+          </div> 
+          <div class="col-md-4">
+            <div class="jumbotron construction">
+            <h2><a href="/chucky/" title="Chucky">Chucky</a></h2>
+            <p>Child's play - Border Link Mitigation</p>
+            </div>
+          </div> 
+          <div class="col-md-4">
+            <div class="jumbotron">
+              <h2><a href="/nre_audits/" title="NRE Audits">NRE Audits</a></h2>
+              <p>NRE related Audits</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div id="footer">
+      <div class="container"><p class="text-muted">Amazon Confidential</p></div>
+    </div>
+  <script src="/static/js/is-it-down.js"></script>
+</body>
+</html>
+{% endblock %}

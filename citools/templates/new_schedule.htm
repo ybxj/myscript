@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>China DCO Internal Portal</title>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+<link rel="stylesheet" type="text/css" href="/css/icon.css"/>
+
+<style type="text/css">
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 14px;
+}
+
+#tbl_new_receiving_item {
+	border: solid black;
+	border-width:0px 0px 0px 0px;
+	text-align:center;
+}
+#tbl_new_receiving_item > thead > tr > th{border:solid black; border-width:1px 1px 1px 1px;}
+#tbl_new_receiving input {width:400px;}
+
+</style>
+
+<script type="text/javascript">
+$(function() {
+	initCategory();
+	setDatePicker();
+});
+
+function setDatePicker() {
+	$( "#StartDate" ).datepicker();
+	$( "#EndDate" ).datepicker();
+	$( "#StartDate" ).datepicker("option", "dateFormat", "yy-mm-dd");
+	$( "#EndDate" ).datepicker("option", "dateFormat", "yy-mm-dd");
+	$("#radio_recur_once").prop("checked", "checked");
+}
+
+function initCategory() {
+	var url = "/cgi/listCTI.cgi";
+	
+	$.getJSON(url, function(result){
+		buildOptions(result, 'category');
+	});
+}
+
+function getTypes() {
+	var cat = $("#category").val();
+	var tp = $("#type").val();
+	var url = "/cgi/listCTI.cgi?category=" + cat;
+	$("#type").empty();
+	$("#item").empty();
+	if(cat == "") {
+		return false;
+	}
+	$.getJSON(url, function(result){
+		buildOptions(result, 'type');
+	});
+}
+
+function getSubItems() {
+	var cat = $("#category").val();
+	var tp = $("#type").val();
+	if(cat == "" || tp == "") {
+		$("#item").empty();
+		return false;
+	}
+	var url = ("/cgi/listCTI.cgi?category=" + cat + "&type=" + tp);
+	
+	$.getJSON(url, function(result){
+		buildOptions(result, 'item');
+	});
+}
+
+function buildOptions(data, id) {
+	var $cont = "<option value='' selected> -- </option>";
+	data = data.message;
+	if(data.length > 0) {
+		for(var i = 0; i < data.length; i++) {
+			$cont += ('<option value="' + data[i] + '">' + data[i] + '</option>');
+		}
+	}
+	
+	$("#" + id).html($cont);
+}
+
+function onSubmitValidate() {
+	text = chrConv($("#details").val());
+	$("#details").val(text);
+	if(checkNotNullInput()) {
+		return false;
+	}
+	if(!chkInputVal()) {
+		return false;
+	}
+	$("#form_new_schedule").submit();
+}
+
+function chkInputVal() {
+	var flag = true;
+	if($("input[name='recurrence']:checked").val() == 'weekly') {
+		if($("input[name='week_day']:checked").length < 1) {
+			flag = false;
+			alert("You must select at least 1 week day!");
+		}
+	} else if($("input[name='recurrence']:checked").val() == 'monthly') {
+		if($("input[name='months']:checked").length < 1) {
+			flag = false;
+			alert("You must select at least 1 month!");
+		}
+	}
+	return flag;
+}
+
+
+function chrConv(b) {
+	var c= '';
+	for(i=0; i<b.length; i++){
+		if(b.charCodeAt(i)>127){ c += '&#' + b.charCodeAt(i) + ';'; }else{ c += b.charAt(i); }
+  	}
+	return c;
+  	//document.forms.conversionForm.outputText.value = c;
+}
+</script>
+</head>
+
+<body style="margin: 10px">
+<form id="form_new_schedule" action="/cgi/dispatcher.cgi?action=AutoCronService/addAutoCutTicket" method="post">
+<div id="div_new_schedule">
+<label><b>Set Ticket Content</b></label>
+<table id="tbl_new_schedule" style="border:0px;">
+	<tr>
+		<td>Impact </td>
+		<td>
+			<select name="impact" id="impact" style="width:350px">
+               <option value="2"
+               >2 - Bus. Critical Function Impaired</option>
+               <option value="3"
+               >3 - Group Productivity Impaired</option>
+               <option value="4"
+               >4 - Individual Productivity Impaired</option>
+               <option value="5" selected="selected"
+       			>5 - Productivity not immediately affected</option>
+           	</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:140px">Category <font color="red">*</font></td>
+		<td>
+			<select id="category" onchange="getTypes()" class="notnull" title="Category" style="width:350px" name="category">
+				
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:140px">Type <font color="red">*</font></td>
+		<td>
+			<select id="type" onchange="getSubItems()" name="type" class="notnull" title="Type" style="width:350px">
+				
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:140px">Item <font color="red">*</font></td>
+		<td>
+			<select id="item" name="item" class="notnull" title="Item" style="width:350px">
+				
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:140px">Short Description <font color="red">*</font></td>
+		<td>
+			<input id="short_description" name="short_description" class="notnull" title="Short Description" style="width:600px" />
+		</td>
+	</tr>
+	
+	<tr>
+		<td style="width:140px">Details <font color="red">*</font></td>
+		<td>
+			<textarea id="details" name="details" class="notnull" title="Details" style="width:600px;height:250px" ></textarea>
+		</td>
+	</tr>
+	
+	<tr>
+		<td style="width:140px">CC List </td>
+		<td>
+			<label>CC LIST(comma-delimited list of logins without @amazon.com)</label> <br>
+			<input id="cc_list" name="cc_list" title="CC List" style="width:600px" />
+		</td>
+	</tr>
+	
+</table>
+</div>
+<div style="margin-top:10px;border: 1px solid black;width:700px;padding:10px">
+	<label><b>Set schedule</b></label>
+	<table>
+		<tr>
+			<td style="width:150px">Start Date <font color="red">*</font></td>
+			<td>
+				<input name="StartDate" id="StartDate" class="notnull" type="text"/>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:150px">Time of Day (GMT+8) <font color="red">*</font></td>
+			<td>
+				<input name="SchedTime" class="notnull" type="text" /> <label>(e.g. 18:30)</label>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="border-top:1px solid black;"></td>
+		</tr>
+		<tr>
+			<td colspan="2"><b>Recurrence</b></td>
+		</tr>
+		<tr>
+			<td style="width:150px;border-right:1px solid black;">
+				<input id="radio_recur_once" type="radio" name="recurrence" value="once" onchange="setRecurOnce(this)" checked="checked" /> Once <br>
+				<input type="radio" name="recurrence" value="daily" onchange="setRecurDaily(this)" /> Daily <br>
+				<input type="radio" name="recurrence" value="weekly" onchange="setRecurWeekly(this)" /> Weekly <br>
+				<input type="radio" name="recurrence" value="monthly" onchange="setRecurMonthly(this)" /> Monthly <br>
+			</td>
+			<td>
+				Run once (or on one day if repeating)
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="border-top:1px solid black;"></td>
+		</tr>
+		<tr>
+			<td><b>End Day</b></td>
+			<td>
+				<input type="radio" name="radio_end_day" onclick="disableInput('EndDate')" value="none" checked="checked" /> None<br>
+				<input type="radio" name="radio_end_day" onclick="enableInput('EndDate')" value="by" /> End by <input type="text" id="EndDate" name="EndDate" disabled />
+			</td>
+		</tr>
+	</table>
+</div>
+</form>
+<script type="text/javascript">
+function disableInput(id) {
+	$("#" + id).prop("disabled", "disabled");
+}
+
+function enableInput(id) {
+	$("#" + id).prop("disabled", false);
+}
+function setRecurOnce(cur) {
+	var sel = $(cur).val();
+	if(sel == undefined || sel == "") {
+		return false;
+	}
+	var $cont = "Run once (or on one day if repeating)";
+	$(cur).parent().next().html($cont);
+}
+
+function setRecurDaily(cur) {
+	var sel = $(cur).val();
+	if(sel == undefined || sel == "") {
+		return false;
+	}
+	var $cont = "Every ";
+	$cont += '<input name="day_recur" type="text" style="width:30px" value="1" />';
+	$cont += 'day(s)';
+	$(cur).parent().next().html($cont);
+}
+
+function setRecurWeekly(cur) {
+	var sel = $(cur).val();
+	if(sel == undefined || sel == "") {
+		return false;
+	}
+	var $cont = "Every ";
+	$cont += '<input name="week_recur" type="text" style="width:30px" value="1" />';
+	$cont += 'week(s) on:<br>';
+	$cont += '<input name="week_day" value="0" type="checkbox">Sun';
+	$cont += '<input name="week_day" value="1" type="checkbox">Mon';
+	$cont += '<input name="week_day" value="2" type="checkbox">Tue';
+	$cont += '<input name="week_day" value="3" type="checkbox">Wed';
+	$cont += '<input name="week_day" value="4" type="checkbox">Thu';
+	$cont += '<input name="week_day" value="5" type="checkbox">Fri';
+	$cont += '<input name="week_day" value="6" type="checkbox">Sat';
+	$(cur).parent().next().html($cont);
+}
+
+function setRecurMonthly(cur) {
+	var sel = $(cur).val();
+	if(sel == undefined || sel == "") {
+		return false;
+	}
+	var $cont = '<input type="radio" name="month_recur_type" value="day_of" onclick="enableDay()" checked="checked" />';
+	$cont += 'On day <input id="month_recur" name="month_recur" type="text" style="width:30px" maxlength="2" value="1" /> of: <br>';
+	$cont += '<input type="radio" name="month_recur_type" value="weekday_of" onclick="enableSelect()" />';
+	$cont += 'On the <select name="MonthlyNth" id="MonthlyNth" disabled><option value="first">first</option>';
+	$cont += '<option value="second">second</option><option value="third">third</option>';
+	$cont += '<option value="fourth">fourth</option><option value="last">last</option></select>&nbsp;';
+	$cont += '<select name="MonthlyDOW" id="MonthlyDOW" disabled><option value="0">Sunday</option><option value="1">Monday</option>';
+	$cont += '<option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option>';
+	$cont += '<option value="5">Friday</option><option value="6">Saturday</option></select> of: <br>';
+	$cont += '<input name="months" value="1" type="checkbox">Jan';
+	$cont += '<input name="months" value="2" type="checkbox">Feb';
+	$cont += '<input name="months" value="3" type="checkbox">Mar';
+	$cont += '<input name="months" value="4" type="checkbox">Apr';
+	$cont += '<input name="months" value="5" type="checkbox">May';
+	$cont += '<input name="months" value="6" type="checkbox">Jun<br>';
+	$cont += '<input name="months" value="7" type="checkbox">Jul';
+	$cont += '<input name="months" value="8" type="checkbox">Aug';
+	$cont += '<input name="months" value="9" type="checkbox">Sep';
+	$cont += '<input name="months" value="10" type="checkbox">Oct';
+	$cont += '<input name="months" value="11" type="checkbox">Nov';
+	$cont += '<input name="months" value="12" type="checkbox">Dec';
+
+	$(cur).parent().next().html($cont);
+}
+
+function enableDay() {
+	$("#MonthlyNth").prop("disabled", "disabled");
+	$("#MonthlyDOW").prop("disabled", "disabled");
+	$("#month_recur").prop("disabled", false);
+}
+
+function enableSelect() {
+	$("#month_recur").prop("disabled", "disabled");
+	$("#MonthlyNth").prop("disabled", false);
+	$("#MonthlyDOW").prop("disabled", false);
+}
+</script>
+<div style="margin-top:10px">
+	<input type="button" value="Submit" id="btn_submit_schedule" onclick="onSubmitValidate()" />
+	<input type="button" value="Close" id="btn_close" onclick="closeNoRefresh()" />
+</div>
+
+<div id="div_iframe"></div>
+</body>
+</html>

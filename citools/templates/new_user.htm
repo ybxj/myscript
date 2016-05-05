@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>China DCO Internal Portal</title>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+<link rel="stylesheet" type="text/css" href="/css/icon.css"/>
+
+<style type="text/css">
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 14px;
+}
+
+#tbl_new_receiving_item {
+	border: solid black;
+	border-width:0px 0px 0px 0px;
+	text-align:center;
+}
+#tbl_new_receiving_item > thead > tr > th{border:solid black; border-width:1px 1px 1px 1px;}
+#tbl_new_receiving input {width:400px;}
+
+.notnull {}
+</style>
+
+<script type="text/javascript">
+$(function(){
+	initGroupList();
+	initSiteList();
+});
+
+function moveToRight() {
+	$("#left_name_list option:selected").clone().appendTo("#right_name_list");
+	$("#left_name_list option:selected").remove();
+}
+
+function moveToLeft() {
+	$("#right_name_list option:selected").clone().appendTo("#left_name_list");
+	$("#right_name_list option:selected").remove();
+}
+
+function mvToRight() {
+	$("#left_site_list option:selected").clone().appendTo("#right_site_list");
+	$("#left_site_list option:selected").remove();
+}
+
+function mvToLeft() {
+	$("#right_site_list option:selected").clone().appendTo("#left_site_list");
+	$("#right_site_list option:selected").remove();
+}
+
+function initGroupList() {
+	var $lurl = "/cgi/dispatcher.cgi?action=GroupsService/listAllGroup";
+	//var $rurl = "/cgi/dispatcher.cgi?action=GroupsService/getMemberListByGroup";
+	var $lcont = "";
+	var $rcont = "";
+	
+	$.getJSON($lurl, function(result){
+		if(result.status == "OK") {
+			result = result.message;
+			var $len = result.length;
+			for(i = 0; i < $len; i++) {
+				$lcont += '<option value="' + result[i].Gid + '">' + result[i].Name + '</option>';
+			}
+			$("#left_name_list").append($lcont);
+		}
+	});
+}
+
+function initSiteList() {
+	var $lurl = "/cgi/dispatcher.cgi?action=SiteConfigService/getAllSiteName";
+	//var $rurl = "/cgi/dispatcher.cgi?action=GroupsService/getMemberListByGroup";
+	var $lcont = "";
+	var $rcont = "";
+	
+	$.getJSON($lurl, function(result){
+		if(result.status == "OK") {
+			result = result.message;
+			var $len = result.length;
+			for(i = 0; i < $len; i++) {
+				$lcont += '<option value="' + result[i].SiteName + '">' + result[i].SiteName + '</option>';
+			}
+			$("#left_site_list").append($lcont);
+		}
+	});
+}
+
+function onSubmitValidate() {
+	if(checkNotNullInput()) {
+		return false;
+	} else {
+		var vals = "";
+		var opts = $("#right_name_list option");
+		if(opts.length > 1) {
+			opts.each(function(){
+				vals += ($(this).val() + ",");
+			});
+		} else {
+			vals += $(opts).val();
+		}
+		
+		var sites = "";
+		var sopts = $("#right_site_list option");
+		if(sopts.length > 1) {
+			sopts.each(function(){
+				sites += ($(this).val() + ",");
+			});
+		} else {
+			sites += $(sopts).val();
+		}
+		
+		var $url = "/cgi/dispatcher.cgi?action=UserService/addUser&Username=" + $("#Username").val() + "&Site=" + sites;
+		if(vals == "") {
+			$url += ("&Gid=" + '500');
+		} else {
+			$url += ("&Gid=" + vals);
+		}
+		
+		$.get($url).done(function(data){
+			$("body").html(data);
+		});
+	}
+}
+</script>
+</head>
+
+<body style="margin: 10px">
+<form id="form_new_group" method="post" action="/test.cgi">
+	<table>
+		<tr>
+			<td style="width:120px">
+				User Name <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="Username" style="width:160px" type="text" id="Username" name="Username" />
+			</td>
+		</tr>
+		<tr style="margin-top:10px">
+			<td style="width:120px">
+				Groups
+			</td>
+			<td>
+				<select id="left_name_list" style="width:160px" multiple="multiple">
+				</select>
+			</td>
+			<td>
+				<input id="btn_to_right" onclick="moveToRight()" type="button" value=">>" />
+				<br>
+				<input id="btn_to_left" onclick="moveToLeft()" type="button" value="<<" />
+			</td>
+			<td>
+				<select name="Gid" id="right_name_list" style="width:160px" multiple="multiple">
+					
+				</select>
+			</td>
+		</tr>
+		<tr style="margin-top:10px">
+			<td style="width:120px">
+				Sites
+			</td>
+			<td>
+				<select id="left_site_list" style="width:160px" multiple="multiple">
+				</select>
+			</td>
+			<td>
+				<input id="btn_to_right" onclick="mvToRight()" type="button" value=">>" />
+				<br>
+				<input id="btn_to_left" onclick="mvToLeft()" type="button" value="<<" />
+			</td>
+			<td>
+				<select name="SiteName" id="right_site_list" style="width:160px" multiple="multiple">
+					
+				</select>
+			</td>
+		</tr>
+	</table>
+	
+	<input type="button" value="Submit" onclick="onSubmitValidate()" />
+</form>
+</body>
+</html>

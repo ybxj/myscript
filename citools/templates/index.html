@@ -1,0 +1,134 @@
+{% load staticfiles %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>China Infrastructure Ops. Tools</title>
+<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/sliding.js' %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/icon.css' %}"/>
+
+<link href='https://internal-cdn.amazon.com/dtux.amazon.com/stylesheets/footer.css' rel='stylesheet' type='text/css' />
+
+<script type="text/javascript" src="{% static 'js/TableFilter/tablefilter_all_min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/tableconfig.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/datatable.js' %}"></script>
+<script src="{% static 'js/TableFilter/TFExt_SortableTable/sortabletable.js' %}" language="javascript" type="text/javascript"></script>
+<script src="{% static 'js/TableFilter/TFExt_SortableTable/tfAdapter.sortabletable.js' %}" language="javascript" type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'js/TableFilter/filtergrid.css' %}"/>
+
+<script type="text/javascript">
+$(function() {
+    if(window.attachEvent) {
+        $("#notify_bar").html("This website works best with Mozilla Firefox!");
+        $("#notify_bar").show(1000);
+    }
+    slide("#sliding-navigation", 25, 15, 150, .8);
+    //refreshTodoList("todo_list");
+    
+    getLeftNav();
+});
+
+</script>
+
+<base target="_blank" />
+</head>
+
+<body style="margin-left:5px">
+<div style="width:100%;background-color:yellow;height:20px;display:none;padding-left:5px" id="notify_bar"></div>
+<div id="div_head" style="margin-top:10px">
+    <span>
+        <img style="cursor:pointer" onclick='javascript:window.location.href="https://citools.amazon.com"' src="/images/logo_trans_131x28.png" alt="China Infrastructure Ops. Tools" />
+    </span>
+</div>
+<hr size="1" noshade="noshade" /><br/>
+
+<div id="content">
+    <!-- left nav -->
+    <div id="div_left_nav" style="width:250px;float:left;">
+        <ul id="sliding-navigation">
+
+        <li class="sliding-element"><a id="all_receiving" onclick="refreshTableContent(this.id)">All Receiving</a></li>
+        <li class="sliding-element"><a id="all_shipping" onclick="refreshTableContent(this.id)">All Shipping</a></li>
+        <li class="sliding-element"><a id="all_item" onclick="refreshTableContent(this.id)">All Item</a></li>
+
+        <li class="sliding-element"><a id="receiving_category" onclick="refreshTableContent(this.id)">Receiving Category</a></li>
+        <li class="sliding-element"><a id="receiving_courier" onclick="refreshTableContent(this.id)">Courier</a></li>
+
+            <li class="sliding-element"><h3>Ops. Tools</h3></li>
+            <li class="sliding-element"><a id="cut_tickets" onclick="refreshTableContent(this.id)">Auto Cut Tickets</a></li>
+            <li class="sliding-element"><h3>Administration</h3></li>
+            <li class="sliding-element"><a id="site_config" onclick="refreshTableContent(this.id)">Site Config</a></li>
+
+    <li class="sliding-element"><a id="user_config" onclick="refreshTableContent(this.id)">User Config</a></li>
+            <li class="sliding-element"><a id="group_config" onclick="refreshTableContent(this.id)">Group Config</a></li>
+            <li class="sliding-element"><a id="purview_config" onclick="refreshPurviewConfig(this.id)">Purview Config</a></li>
+
+        </ul>
+    </div>
+    
+    <div id="div_right_content" style="float:left;width:1000px;">
+        <div id="div_table_container">
+            
+        </div>
+        
+        <div id="div_buttons" style="margin-top:10px">
+            
+        </div>
+    </div>
+    
+    <div style="clear:both"></div>
+    
+</div>
+
+<script type="text/javascript">
+    //setFilterGrid("tbl_todo_list",props_todo_list);
+</script>
+
+<!-- footer -->
+<br>
+<div id="footer"><div class="inner-container">
+<div class="column"><h3 style="text-transform: capitalize">Handy Tools</h3><ul>
+<li><a href="https://shiftreporter.amazon.com">Shift Reporter</a></li>
+<li><a href="https://mobility.amazon.com/scanner/parts.html">Parts Scanner</a></li>
+<li><a href="https://mobility.amazon.com/part/search">Ammunition Search</a></li>
+<li><a href="https://dco-tools.amazon.com/u4stats/rackstatusoutput.cgi?datacenter=mysite&begindate=2013-01-05">Rack Status</a></li>
+<li><a href="https://datacenters.amazon.com/twiki/RackInstallerLinks.cgi">Rack Install Wizard</a></li>
+<li><a href="http://permissions.amazon.com/">Permissions</a></li>
+<li><a href="http://connect.amazon.com/">Phone Tool</a></li>
+<li><a href="https://tt.amazon.com/dashboard">Remedy</a></li>
+<li><a href="https://cti.amazon.com/">CTI Self-Service</a></li>
+</ul></ul></div>
+<div class="column"><h3 style="text-transform: capitalize">Infra Tools</h3><ul>
+<li><a href="https://infrastructure.amazon.com/automation/index.cgi">InfAuto</a></li>
+<li><a href="https://infrastructure.amazon.com/automation/hostDetails.cgi">Provisioning</a></li>
+<li><a href="https://infrastructure.amazon.com/automation/dcCapacityManager.cgi">DCCM</a></li>
+<li><a href="https://infrastructure.amazon.com/automation/purchasingPipelineViewer.cgi">PPV</a></li>
+<li><a href="https://network-console.amazon.com/console-port-db/">Network ConsoleDB</a></li>
+<li><a href="https://netlocal.amazon.com/?view=search">Network Locator</a></li>
+<li><a href="http://switchbuilder.amazon.com">Prod Switch Builder</a></li>
+<li><a href="https://switchbuilder-prod-bjs.amazon.com/">BJS Switch Builder</a></li>
+<li><a href="https://switchbuilder-bjs.ec2.amazon.com/switch-builder.cgi">EC2 Switch Builder</a></li>
+</ul></ul></div>
+<div class="column"><h3 style="text-transform: capitalize">DCO Docs</h3><ul>
+<li><a href="https://portal2010.amazon.com/sites/cnawsdc/SitePages/Home.aspx">BJS DCO Docs</a></li>
+<li><a href="https://portal2010.amazon.com/sites/cnproddc/default.aspx">PEK DCO Docs</a></li>
+<li><a href="https://portal2010.amazon.com/sites/cndceo">DCEO Docs</a></li>
+<li><a href="http://datacenters.amazon.com/twiki/bin/view/Datacenters/">Old DCO Wiki</a></li>
+<li><a href="http://dco-docs-cf.amazon.com/display/dcowiki/Data+Center+Operations">New DCO Wiki</a></li>
+<li><a href="https://w.amazon.com/index.php/Main_Page">Amazon Wiki</a></li>
+</ul></ul></div>
+<div class="business_card"><h3>Issues or Suggestions?</h3><ul>
+<li><a href="mailto:yangtao@amazon.com">Contact Us</a></li>
+<li><a href="https://jira3.amazon.com/secure/CreateIssue.jspa?pid=15058&issuetype=1">Help Us Improve</a></li>
+</ul></div></div></div>
+
+</body></html>
+

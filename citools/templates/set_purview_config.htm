@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Set Purview Configuration</title>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/pr/css/jquery-ui.css"/>
+
+<style type="text/css">
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 14px;
+}
+
+.notnull {}
+
+#tbl_priv_list th {border: 1px solid black}
+#tbl_priv_list td {border: 1px solid black}
+#tbl_priv_list tbody>tr>td>label {display: inline-block; width:150px}
+</style>
+
+<script type="text/javascript">
+$(function(){
+	getAllGroupList();
+	genTable();
+});
+
+function changeAction(curr) {
+	if($(curr).is(":checked")) {
+		$(curr).next().next().val('APPROVE');
+	} else {
+		$(curr).next().next().val('DENY');
+	}
+}
+
+function getAllGroupList() {
+	var $url = "/cgi/dispatcher.cgi?action=GroupsService/listAllGroup";
+	$.getJSON($url, function(result){
+		if(result.status == "OK") {
+			result = result.message;
+			var $len = result.length;
+			var $cont = "";
+			for(var i = 0; i < $len; i++) {
+				$cont += '<option value="' + result[i].Gid + '">' + result[i].Name + '</option>';
+			}
+			$("#list_all_groups").append($cont);
+		}
+	});
+}
+
+function getPurviewByGid() {
+	$("input:checkbox:checked").each(function(){
+		$(this).prop("checked", false);
+		$(this).next().next().val('DENY');
+	});
+	var $url = "/cgi/dispatcher.cgi?action=PurviewService/getPurviewConfigByGid";
+	var $gid = $("#list_all_groups option:selected").val();
+	if($gid == "" || $gid == undefined) {
+		return false;
+	} else {
+		$url += ("&Gid=" + $gid);
+	}
+	
+	$.getJSON($url, function(result){
+		if(result.status == "OK") {
+			result = result.message;
+			var $len = result.length;
+			for(var i = 0; i < $len; i++) {
+				$("#" + result[i].Method).prop("checked", true);
+				$("#" + result[i].Method).next().next().val('APPROVE');
+			}
+		}
+	});
+}
+
+function savePurviewConfig() {
+	var $gid = $("#list_all_groups option:selected").val();
+	if($gid == "" || $gid == undefined) {
+		return false;
+	}
+	$("#form_purview_config").submit();
+//	var $url = "/cgi/dispatcher.cgi?action=PurviewService/savePurviewConfig"
+//	$.getJSON($url, function(result){
+//		alert(result.status);
+//	});
+}
+
+function genNavInput(svc, ids) {
+	var $cont = "";
+	
+	for(var i = 0; i < ids.length; i++) {
+		$cont += '<input type="hidden" name="Bean" value="' + svc + '" />';
+		$cont += '<input type="hidden" name="Method" value="' + ids[i].id + '"/>';
+		$cont += '<input type="checkbox" onclick="changeAction(this)" id="' + ids[i].id + '" /><label>' + ids[i].label + '</label>';
+		$cont += '<input type="hidden" name="Action" value="DENY" />';
+		var j = i + 1;
+		if(j < ids.length && (j%3 == 0)) {
+			$cont += '<br>';
+		}
+	}
+	$cont += "<br>";
+	return $cont;
+}
+
+function genSvcInput(svc, ids) {
+	var $cont = "<tr>";
+	$cont += ("<td>" + svc + "</td>");
+	$cont += "<td>";
+	
+	for(var i = 0; i < ids.length; i++) {
+		$cont += '<input type="hidden" name="Bean" value="' + svc + '" />';
+		$cont += '<input type="hidden" name="Method" value="' + ids[i] + '"/>';
+		$cont += '<input type="checkbox" onclick="changeAction(this)" id="' + ids[i] + '" /><label>' + ids[i] + '</label>';
+		$cont += '<input type="hidden" name="Action" value="DENY" />';
+		var j = i + 1;
+		if(j < ids.length && (j%3 == 0)) {
+			$cont += '<br>';
+		}
+	}
+	$cont += '</td></tr>';
+	$("#tbl_priv_list tbody").append($cont);
+}
+
+function genTable() {
+	var navs = [
+	            {svc: 'LogisticsService', ids: [
+	                                            {id: 'all_receiving', label: 'All Receiving'}, 
+	                                            {id: 'all_item', label: 'All Item'},
+	                                            {id: 'receiving_category', label: 'Receiving Category'},
+	                                            {id: 'receiving_admin', label: 'Receiving Admin'}
+	                                            ]},
+	            {svc: 'AccessRequestService', ids: [
+	                                                {id: 'audit_log', label: 'Audit Log'}
+	                                                ]},
+	            {svc: 'OpsTools', ids: [
+	                                    {id: 'cut_tickets', label: 'Auto Cut Tickets'}, 
+	                                    {id: 'server_numbers', label: 'Server Numbers'}
+	                                    ]},
+	            {svc: 'Administration', ids: [
+	                                          {id: 'administration', label: 'Administration'}, 
+	                                          {id: 'site_config', label: 'Site Config'}, 
+	                                          {id: 'user_config', label: 'User Config'},
+	                                          {id: 'group_config', label: 'Group Config'},
+	                                          {id: 'purview_config', label: 'Purview Config'}
+	                                          ]},
+	            ];
+	
+	var svcs = [
+	            {svc: 'LogisticsService', ids: ['addReceiving', 'editReceiving', 'deleteReceiving', 'deleteReceivedItem', 
+	                                            'listMyReceiving', 'listAllReceiving', 'getReceivingById', 'listAllReceivedItem',
+	                                            'getReceivingByItemId', 'listAllCategory', 'addCategory', 'deleteReceivingCategory',
+	                                            'editReceivingByAdmin', 'addCourier', 'listAllCourier', 'deleteReceivingCourier',
+	                                            'addShipping', 'deleteShipping', 'getShippingById', 'getShippingByItemId',
+	                                            'listMyShipping', 'listAllShipping'
+	                                            ]},
+	            {svc: 'UserService', ids: ['listAllUser', 'addUser', 'getAllUserName', 'deleteUser', 'getUserById', 'editUser']},
+	            {svc: 'GroupsService', ids: ['addGroup', 'listAllGroup', 'deleteGroup', 'getGroupById', 'editGroup']},
+	            {svc: 'PurviewService', ids: ['addPurview', 'savePurviewConfig', 'getPurviewConfigByGid']},
+	            {svc: 'SiteConfigService', ids: ['addSiteConfig', 'listAllSites', 'getSiteConfigById', 'getAllSiteName', 'editSiteConfig']},
+	            {svc: 'AccessRequestService', ids: ['addAccessRequest', 'viewAccessRequest', 'editAccessRequest', 
+	                                                'deleteAccessRequest', 'approveAccessRequest']},
+	            {svc: 'TodoService', ids: ['listMyTodoList', 'deleteTodo', 'getTodoById']},
+	            {svc: 'AutoCronService', ids: ['addAutoCutTicket', 'listAllAutoCrons', 'deleteAutoCron', 'listCronById', 'editAutoCutTicket']},
+	            {svc: 'ServerNumberService', ids: ['getServerNumberDetail', 'listServerNumber']}
+	            ];
+	
+	var $cont = "<tr>";
+	$cont += "<td>Navigation Portal</td>";
+	$cont += "<td>"
+	for(var i = 0; i < navs.length; i++) {
+		$cont += genNavInput(navs[i].svc, navs[i].ids);
+	}
+	$cont += "</td></tr>";
+	
+	$("#tbl_priv_list tbody").html($cont);
+	
+	for(var i = 0; i < svcs.length; i++) {
+		genSvcInput(svcs[i].svc, svcs[i].ids);
+	}
+}
+</script>
+</head>
+
+<body style="margin: 10px">
+<form id="form_purview_config" action="/cgi/dispatcher.cgi?action=PurviewService/savePurviewConfig" method="post">
+<table>
+	<tr>
+		<td style="width:180px">Select Group</td>
+		<td>
+			<select id="list_all_groups" name="Gid" onchange="getPurviewByGid()">
+				<option value=""> -- </option>
+			</select>
+		</td>
+	</tr>
+	<tr><td></td></tr>
+	<tr>
+		<td>
+			<b>Purview Configuration</b>
+		</td>
+	</tr>
+</table>
+<table id="tbl_priv_list" border="0" cellpadding="0" cellspacing="0">
+	<thead>
+		<tr>
+			<th style="width:180px">Bean Name</th>
+			<th style="width:600px">Method Name</th>
+		</tr>
+	</thead>
+	<tbody>
+	
+	</tbody>
+</table>
+</form>
+<div style="margin-top:10px">
+	<input type="button" value="Save" onclick="savePurviewConfig()" />
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>China DCO Internal Portal</title>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+<link rel="stylesheet" type="text/css" href="/css/icon.css"/>
+
+<style type="text/css">
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 14px;
+}
+
+#tbl_new_receiving_item {
+	border: solid black;
+	border-width:0px 0px 0px 0px;
+	text-align:center;
+}
+#tbl_new_receiving_item > thead > tr > th{border:solid black; border-width:1px 1px 1px 1px;}
+#tbl_new_receiving input {width:400px;}
+
+.notnull {}
+</style>
+
+<script type="text/javascript">
+function onSubmitValidate() {
+	if(checkNotNullInput()) {
+		return false;
+	}
+	$("#form_new_category").submit();
+}
+
+</script>
+</head>
+
+<body style="margin: 10px">
+<form id="form_new_category" action="/cgi/dispatcher.cgi?action=LogisticsService/addCategory" method="post">
+	<table style="border:0px;">
+		<tr>
+			<td style="width:100px">Category</td>
+			<td>
+				<textarea id="Category" name="Category" class="notnull" rows="5" cols="30"></textarea>
+			</td>
+		</tr>
+	</table>
+	<br>
+	<input type="button"  value="Submit" onclick="onSubmitValidate()" />
+</form>
+</body>
+</html>

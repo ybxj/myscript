@@ -1,0 +1,10 @@
+<div>
+    <h3>Site</h3>
+    <form action = "{ url 'site' %}" method="post">
+    {% csrf_token %}
+        <p> Site:<input value="{{ site_form.site_name }}" /></p>
+        <p>to list:<input value="{{ site_form.to_list }}" /></p>
+        <p>cc list:<input value="{{ site_form.cc_list }}" /></p>
+
+        <input name="submit" type="submit" id="submit" tabindex="5" value="submit" class="button"/>
+        </form></div>

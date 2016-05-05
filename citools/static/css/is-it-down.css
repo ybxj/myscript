@@ -1,0 +1,15 @@
+
+#is-it-down-container {
+    margin: -4px auto 5px;
+    width: 100%;
+}
+
+#is-it-down-container .is-it-down-stripe {
+    border-bottom: none;
+    font-size: 1em;
+}
+
+#is-it-down-container .is-it-down-stripe.level-one {
+    color: #9F6000;
+    background-color: #FEEFB3;
+}

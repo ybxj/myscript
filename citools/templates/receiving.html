@@ -1,0 +1,21 @@
+<div>
+    <h3>Site</h3>
+    <form action = "{ url 'receiving' %}" method="post">
+    {% csrf_token %}
+        <p>Site:{{ receiving_form.site_name }}</p>
+        <p>Site:{{ receiving_form.category_name }}</p>
+        <p>Site:{{ receiving_form.courier_name }}</p>
+        <p>Site:{{ receiving_form.Ofa_receiving }}</p>
+        <p>Site:{{ receiving_form.creator }}</p>
+        <p>Site:{{ receiving_form.tracking_number }}</p>
+        <p>Site:{{ receiving_form.vendor }}</p>
+        <p>Site:{{ receiving_form.po }}</p>
+        <p>Site:{{ receiving_form.rma_id }}</p>
+        <p>Site:{{ receiving_form.place_location }}</p>
+        <p>Site:{{ receiving_form.short_desc }}</p>
+        <p>Site:{{ receiving_form.comment }}</p>
+        <p>Site:{{ receiving_form.comment }}</p>
+
+
+        <input name="submit" type="submit" id="submit" tabindex="5" value="submit" class="button"/>
+        </form></div>

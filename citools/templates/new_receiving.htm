@@ -1,0 +1,347 @@
+{% load staticfiles %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>New Receiving</title>
+<script type="text/javascript" src="{% static '/js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/jquery-ui.js' %}"></script>
+<script type="text/javascript" src="{% static '/js/main.js' %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static '/css/jquery-ui.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static '/css/styles.css' %}"/>
+<link rel="stylesheet" type="text/css" href="/{% static 'css/icon.css' %}"/>
+
+<style type="text/css">
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 14px;
+}
+
+#tbl_new_receiving_item {
+	border: solid black;
+	border-width:0px 0px 0px 0px;
+	text-align:center;
+}
+#tbl_new_receiving_item > thead > tr > th{border:solid black; border-width:1px 1px 1px 1px;}
+#tbl_new_receiving input {width:400px;}
+
+.notnull {}
+</style>
+
+<script type="text/javascript">
+	$(function() {
+		genEmptyItemLines();
+		//addAutoSelect();
+		initSites();
+		initCategory();
+		initCourier();
+	    $('input:text:first').click();
+	    $('input:text:first').select();
+	    var $inp = $('#tbl_new_receiving').find(":text");
+	    $inp.on('keydown', function (e) {
+	        var key = e.which;
+	        if (key == 9 || key == 13) {
+	            e.preventDefault();
+	            var nxtIdx = $inp.index(this) + 1;
+	            if(nxtIdx == $inp.length) {
+	            	$("#tbl_new_receiving_item input:text:first").click();
+	            	$("#tbl_new_receiving_item input:text:first").select();
+	            } else {
+	            	$inp[nxtIdx].click();
+		            $inp[nxtIdx].select();
+	            }
+	        }
+	    });
+	});
+
+function addAutoSelect(rid) {
+	$("#" + rid).click(function(){
+		var items = ["Motherboard", "HDD", "Memory", "CPU", "SAS Backplane", "SAS Cable", "PSU", "Switch", "Router"];
+		$("#" + rid).autocomplete({source: items, minLength: 0, delay: 0, autoFocus: true, response: function(event, ui) {
+		//	if(ui.content == '' || ui.content == undefined) {
+		//		$("#" + rid).val('');
+		//		$("#" + rid).click();
+		//	}
+		}});
+		$("#" + rid).autocomplete('search');
+	});
+//	$("#receving_site").click(function(){
+//		var sites = ["PEK4", "PEK7", "PEK50", "BJS9", "BJS10", "BJS11", "BJS12"];
+//		$("#receving_site").autocomplete({source: sites, minLength: 0, delay: 0, autoFocus: true, response: function(event, ui) {
+//			if(ui.content == '' || ui.content == undefined) {
+//				$("#receving_site").val('');
+//				$("#receving_site").click();
+//			}
+//		}});
+//		$("#receving_site").autocomplete('search');
+//	});
+}
+
+function initCategory() {
+	var $url = "/cgi/dispatcher.cgi?action=LogisticsService/listAllCategory";
+	$.getJSON($url, function(result){
+		if(result.status == "OK") {
+			var $cont = '<option value=""> -- </option>';
+			for(var i = 0; i < result.message.length; i++) {
+				$cont += '<option value="' + result.message[i].Category + '">' + result.message[i].Category + '</option>';
+			}
+			$("#Category").html($cont);
+		}
+	});
+}
+
+function initSites() {
+	var $url = "/cgi/dispatcher.cgi?action=SiteConfigService/getAllSiteName";
+	$.getJSON($url, function(result){
+		if(result.status == "OK") {
+			var $cont = '<option value=""> -- </option>';
+			for(var i = 0; i < result.message.length; i++) {
+				$cont += '<option value="' + result.message[i].SiteName + '">' + result.message[i].SiteName + '</option>';
+			}
+			$("#Site").html($cont);
+		}
+	});
+}
+
+function initCourier() {
+	var $url = "/cgi/dispatcher.cgi?action=LogisticsService/listAllCourier";
+	$.getJSON($url, function(result){
+		if(result.status == "OK") {
+			var $cont = '<option value=""> -- </option>';
+			for(var i = 0; i < result.message.length; i++) {
+				$cont += '<option value="' + result.message[i].Courier + '">' + result.message[i].Courier + '</option>';
+			}
+			$("#Courier").html($cont);
+		}
+	});
+}
+
+function focusNextInput(curr) {
+	var $inp = $("#tbl_new_receiving_item").find(":text");
+	$inp.off('keydown');
+	$inp.on('keydown', function (e) {
+        var key = e.which;
+        if (key == 9 || key == 13) {
+            e.preventDefault();
+            var $tinp = $(this).parent().parent().find(":text");
+    		var $idx = $tinp.index(this);
+			var $nxtIdx = $idx + 1;
+			if($nxtIdx == $tinp.length) {
+				//addNewRow(this);
+				var $ninp = $(this).parent().parent().next().find(":text");
+				$ninp[0].click();
+				$ninp[0].select();
+			}
+			$tinp[$nxtIdx].click();
+			$tinp[$nxtIdx].select();
+        }
+    });
+}
+
+function addNewRow(curr) {
+	var $flag = false;
+	var $lflag = false;
+	
+	var $trinp = $("#tbl_new_receiving_item tbody tr").filter(":last").find(":text");
+	$trinp.each(function(){
+		if($($trinp).index(this) > 2) {
+			return false;
+		}
+		
+		if($(this).val().trim() == undefined || $(this).val().trim() == '') {
+			//do nothing
+		} else {
+			$lflag = true;
+			return false;
+		}
+	});
+	
+	if(!$lflag) {
+		if($("#tbl_new_receiving_item tbody tr").length > 1 && confirm("Submit the receiving?")) {
+			$("#btn_submit_receiving").click();
+		}
+		$trinp[0].focus();
+		return false;
+	}
+	
+	curr = $(curr).parent().prevAll();
+	$(curr).find(":text").each(function(){
+		if($(this).val().trim() == undefined || $(this).val().trim() == '') {
+			//do nothing
+		} else {
+			$flag = true;
+			return false;
+		}
+	});	
+	
+	if($flag) {
+		addNewLine();
+	}
+}
+
+function addNewLine() {
+	var rid = ("ItemName_" + Math.floor(Math.random() * 100000));
+	var content = '<tr>';
+	content += '<td><input name="ItemName" id="' + rid + '" type="text" style="width:160px" onclick="focusNextInput(this)" /></td>';
+	content += '<td><input name="Model" type="text" style="width:160px" onclick="focusNextInput(this)" /></td>';
+	content += '<td><input name="SN" type="text" style="width:160px" onclick="focusNextInput(this)" /></td>';
+	content += '<td><input name="Assetid" type="text" style="width:160px" onclick="focusNextInput(this)" /></td>';
+	content += '<td><input name="Quantity" type="text" style="width:80px" value="1" onclick="focusNextInput(this)" /></td>';
+	//content += '<td><input type="checkbox" /></td>';
+	content += '<td><input name="Bin" type="text" style="width:150px" /></td>';
+	content += '<td><input name="Comments" type="text" style="width:150px" /></td>';
+	content += '<td><input type="button" value="Remove" onclick="removeRow(this)" /></td>';
+	content += '<td><input type="button" value="Copy" onclick="copyToNew(this)" /></td>';
+	content += '</tr>';
+	
+	$("#tbl_new_receiving_item tbody").append(content);
+	addAutoSelect(rid);
+	//$('html, body').animate({scrollTop: $(document).height()}, 'slow'); 
+}
+
+function copyToNew(cur) {
+	var cline = $(cur).parent().parent().clone();
+	cline.find("td:eq(7)").html('<input type="button" value="Remove" onclick="removeRow(this)" />');
+	$(cur).parent().parent().after(cline);
+}
+
+function removeRow(obj) {
+	$(obj).parent().parent().remove();
+}
+
+function onSubmitValidate() {
+	if(checkNotNullInput()) {
+		return false;
+	}
+	
+	$("#btn_submit_receiving").prop("disabled", true);
+	removeLastEmptyItemLine();
+	
+	var tmp1 = $("#form_receiving_items").serializeArray();
+	var tmp2 = $("#form_new_receiving").serializeArray();
+	var tmp3 = new Array();
+	var mlen = (tmp1.length/$("#tbl_new_receiving_item tbody").find("tr").length);
+	var tlen = tmp1.length;
+	var tlen2 = (tlen -1);
+	if(tlen > 0) {
+		var tmpa = new Array();
+		for(var i = 0; i < tlen; i++) {
+			tmpa.push(tmp1[i]);
+			if(i > 0 && ((i+1) % mlen) == 0) {
+				tmp3.push(tmpa);
+				tmpa = new Array();
+			} else if(i == tlen2) {
+				tmp3.push(tmpa);
+			}
+		}
+	}
+	
+	tmp2.push(tmp3);
+	var str1 = "receiving=" + JSON.stringify(tmp2);
+	//str1 += ("&" + JSON.stringify(tmp3));
+	
+	$.post("/cgi/dispatcher.cgi?action=LogisticsService/addReceiving", str1).done(function(data){
+		$("body").html(data);
+	});
+	//$("#form_new_receiving").submit();
+}
+
+function removeLastEmptyItemLine() {
+	//var $trinp = $("#tbl_new_receiving_item tbody tr").filter(":last").find(":text");
+	var $trinp = $("#tbl_new_receiving_item tbody tr");
+	$trinp.each(function(){
+		var $tdinp = $(this).find(":text");
+		var $lflag = false;
+		$tdinp.each(function(){
+			if($tdinp.index(this) > 2) {
+				return true;
+			}
+			
+			if($(this).val().trim() == undefined || $(this).val().trim() == '') {
+				//do nothing
+			} else {
+				$lflag = true;
+				return false;
+			}
+		});
+		if(!$lflag) {
+			removeRow($tdinp);
+		}
+	});
+}
+
+function genEmptyItemLines() {
+	for(var i = 0; i < 10; i++) {
+		addNewLine();
+	}
+}
+
+function activeNextInput(curr) {
+	if($(curr).is(":checked")) {
+		$(curr).parent().next().find("input").prop("disabled", false);
+		$(curr).parent().next().find("input").focus();
+		//$(curr).parent().next(":input").remove("disabled");
+		//alert($(curr).parent().next().find("input").prop("disabled", !$(curr).parent().next().find("input").prop("disabled")));
+	} else {
+		$(curr).parent().next().find("input").prop("disabled", true);
+	//	$(curr).parent().next(":input").attr("disabled", "disabled");
+	}
+}
+</script>
+</head>
+
+<body style="margin: 10px">
+<form  action="{ url 'receiving' %}" method="post">
+<div id="div_new_receiving">
+<table id="tbl_new_receiving" style="border:0px;">
+	<tr>
+		<td style="width:140px">Site: <font color="red">*</font></td>
+			<td><input name="Site" value="{{ receiving_form.site_name }}"   /></td>
+	</tr>
+	<tr>
+        <td style="width:140px">Category: <font color="red">*</font></td>
+		<td><input name="category" value="{{ receiving_form.category_name }}"   /></td>
+		</tr>>
+    <tr>
+        <td style="width:140px">Courier: <font color="red">*</font></td>
+			<td><input name="courier" value="{{ receiving_form.courier_name }}"  /></td>
+	</tr>
+	<tr>
+		<td>Received in OFA?</td>
+		<td><input name="ReceivedInOFA" value="{{ receiving_form.Ofa_receiving }}" type="checkbox" style="width:10px;margin:0;padding:0" /></td>
+	</tr>
+
+	<tr>
+		<td>Tracking Number: </td>
+		<td><input name="TrackingNumber" type="text" value="{{ receiving_form.tracking_number }}"/></td>
+	</tr>
+	<tr>
+		<td>Vendor: <font color="red">*</font></td>
+		<td><input name="Vendor" class="notnull" type="text" value="{{ receiving_form.vendor }}"/></td>
+	</tr>
+	<tr>
+		<td>PO #</td>
+		<td><input name="PO" type="text" maxlength="10" value="{{ receiving_form.po }}"/></td>
+	</tr>
+	<tr>
+		<td>RMA ID:</td>
+		<td><input name="RMAID" type="text" value="{{ receiving_form.rma_id }}"/></td>
+	</tr>
+
+	<tr>
+		<td>Short Description: </td>
+		<td><input name="ShortDescription" type="text" value="{{ receiving_form.short_desc }}"/></td>
+	</tr>
+	<tr>
+		<td>Placed Location: <font color="red">*</font></td>
+		<td><input name="placelocation" type="text" value="{{ receiving_form.place_location }}"/></td>
+	</tr>
+
+</table>
+
+<div style="margin-top:10px">
+	<input type="button" value="Submit"/>
+</div>
+</body>
+</html>

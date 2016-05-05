@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>China DCO Internal Portal</title>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+<link rel="stylesheet" type="text/css" href="/css/icon.css"/>
+
+<style type="text/css">
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 14px;
+}
+
+#tbl_new_receiving_item {
+	border: solid black;
+	border-width:0px 0px 0px 0px;
+	text-align:center;
+}
+#tbl_new_receiving_item > thead > tr > th{border:solid black; border-width:1px 1px 1px 1px;}
+#tbl_new_receiving input {width:400px;}
+
+.notnull {}
+</style>
+
+<script type="text/javascript">
+$(function(){
+	loadingSpinner();
+	var $id = getQueryString('id');
+	$("#siteconfig_id").val($id);
+	initSiteConfig($id);	
+});
+
+function initSiteConfig(id) {
+	var $lurl = "/cgi/dispatcher.cgi?action=SiteConfigService/getSiteConfigById&id=" + id;
+	$.getJSON($lurl, function(result){
+		if(result.status == "OK") {
+			parseSiteConfig(result.message[0]);
+		}
+	}).done(function(){removeSpinner()});
+}
+
+function parseSiteConfig(data) {
+	$("#SiteName").val(data.SiteName);
+	$(".notnull").each(function(){
+		$(this).val(data[$(this).attr("title")]);
+	});
+	$("#LogisticsCC").val(data['LogisticsCC']);
+	$("#ColoAccessCC").val(data['ColoAccessCC']);
+}
+
+function onSubmitValidate() {
+	if(checkNotNullInput()) {
+		return false;
+	} else {
+		$("#form_new_site_config").submit();
+	}
+}
+</script>
+</head>
+
+<body style="margin: 10px">
+<form id="form_new_site_config" method="post" action="/cgi/dispatcher.cgi?action=SiteConfigService/editSiteConfig">
+<input type="hidden" name="siteconfig_id" id="siteconfig_id" value="" />
+	<table>
+		<tr>
+			<td style="width:160px">
+				Site Name 
+			</td>
+			<td>
+				<input title="SiteName" style="width:300px" type="text" id="SiteName" disabled/>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				DCO Pager Primary <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="DCOPagerPrimary" style="width:300px" type="text" id="DCOPagerPrimary" name="DCOPagerPrimary" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				DCO Team Pager <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="DCOPagerGroup" style="width:300px" type="text" id="DCOPagerGroup" name="DCOPagerGroup" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				DCEO Pager Primary <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="DCEOPagerPrimary" style="width:300px" type="text" id="DCEOPagerPrimary" name="DCEOPagerPrimary" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				DCEO Team Pager <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="DCEOPagerGroup" style="width:300px" type="text" id="DCEOPagerGroup" name="DCEOPagerGroup" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				Logistics Notify <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="LogisticsNotify" style="width:300px" type="text" id="LogisticsNotify" name="LogisticsNotify" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				Logistics CC
+			</td>
+			<td>
+				<input title="LogisticsCC" style="width:300px" type="text" id="LogisticsCC" name="LogisticsCC" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				Colo Access Notify <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="ColoAccessNotify" style="width:300px" type="text" id="ColoAccessNotify" name="ColoAccessNotify" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				ColoAccess CC
+			</td>
+			<td>
+				<input title="ColoAccessCC" style="width:300px" type="text" id="ColoAccessCC" name="ColoAccessCC" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				DCO Team Email <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="DCOGroup" style="width:300px" type="text" id="DCOGroup" name="DCOGroup" />
+			</td>
+		</tr>
+		<tr>
+			<td style="width:160px">
+				DCEO Team Email <font color="red">*</font>
+			</td>
+			<td>
+				<input class="notnull" title="DCEOGroup" style="width:300px" type="text" id="DCEOGroup" name="DCEOGroup" />
+			</td>
+		</tr>
+	</table>
+	
+	<input type="button" value="Submit" onclick="onSubmitValidate()" />
+</form>
+</body>
+</html>

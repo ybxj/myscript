@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>BJS DCO Internal Portal</title>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+<link rel="stylesheet" type="text/css" href="/css/icon.css"/>
+
+<style type="text/css">
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 14px;
+}
+
+#tbl_new_receiving_item {
+	border: solid black;
+	border-width:0px 0px 0px 0px;
+	text-align:center;
+}
+#tbl_new_receiving_item > thead > tr > th{border:solid black; border-width:1px 1px 1px 1px;}
+#tbl_new_receiving input {width:400px;}
+
+</style>
+
+<script type="text/javascript">
+$(function() {
+	loadingSpinner();
+	var $id = getQueryString('id');
+	initSites();
+	initCategory($id);
+});
+
+function initCategory($id) {
+	var $url = "/cgi/dispatcher.cgi?action=LogisticsService/listAllCategory";
+	$.getJSON($url, function(result){
+		if(result.status == "OK") {
+			var $cont = '<option value=""> -- </option>';
+			for(var i = 0; i < result.message.length; i++) {
+				$cont += '<option value="' + result.message[i].Category + '">' + result.message[i].Category + '</option>';
+			}
+			$("#Category").html($cont);
+		}
+	}).done(function(){getReceiving($id)});
+}
+
+function initSites() {
+    var $url = "/cgi/dispatcher.cgi?action=SiteConfigService/getAllSiteName";
+    $.getJSON($url, function(result){
+        if(result.status == "OK") {
+            var $cont = '<option value=""> -- </option>';
+            for(var i = 0; i < result.message.length; i++) {
+                $cont += '<option value="' + result.message[i].SiteName + '">' + result.message[i].SiteName + '</option>';
+            }
+            $("#Site").html($cont);
+        }
+    });
+}
+
+function getReceiving($id) {
+	var $url = "/cgi/dispatcher.cgi?action=LogisticsService/getReceivingById&Id=" + $id;
+	$.getJSON($url, function(result){
+		if(result.status == "OK") {
+			parseReceiving(result.message);
+			if(result.items.length > 0) {
+				parseJSONToItem(result.items);
+			} else {
+				$("#tbl_new_receiving_item tbody").html("<tr><td cols=6 style='text-align:left;padding-left:5px;'><i>No results found.</i></td>");
+			}
+		}
+	}).done(function(){removeSpinner()});
+}
+
+function parseReceiving($recv) {
+	for(var i = 0; i < $recv.length; i++) {
+		$.each($recv[i], function(k, v){
+			//test if the id exist
+			if($("#" + k).length > 0) {
+				if(k == "ReceivedInOFA") {
+					if(v == "YES") {
+						$("#ReceivedInOFA").prop("checked", true);
+					}
+				} else if(k == "Comments") {
+					$("#Comments").val(v.replace(/<br>/g, '\n').trim());
+				} else {
+					v = ((v == null)?"":v);
+					v = v.replace(/&#x0027;/, "'");
+					$("#" + k).val(v);
+				}
+			}
+		});
+	}
+}
+
+function parseJSONToItem($items) {
+	for(var i = 0; i < $items.length; i++) {
+		var content = '<tr>';
+		content += '<td><input name="ItemName" type="text" value="' + (($items[i].ItemName == null)?"":$items[i].ItemName) + '" style="width:160px" readonly /></td>';
+		content += '<td><input name="Model" type="text" value="' + (($items[i].Model == null)?"":$items[i].Model) + '" style="width:160px" onclick="focusNextInput(this)" readonly /></td>';
+		content += '<td><input name="SN" type="text" value="' + (($items[i].SN == null)?"":$items[i].SN) + '" style="width:160px" onclick="focusNextInput(this)" readonly /></td>';
+		content += '<td><input name="Assetid" type="text" value="' + (($items[i].Assetid == null)?"":$items[i].Assetid) + '" style="width:160px" onclick="focusNextInput(this)" readonly /></td>';
+		content += '<td><input name="Quantity" type="text" value="' + (($items[i].Quantity == null)?"":$items[i].Quantity) + '" style="width:80px" onclick="focusNextInput(this)" readonly /></td>';
+		content += '<td><input name="Bin" type="text" value="' + (($items[i].Bin == null)?"":$items[i].Bin) + '" style="width:150px" readonly /></td>';
+		content += '<td><input name="Comments" type="text" value="' + (($items[i].Comments == null)?"":$items[i].Comments) + '" style="width:150px" readonly /></td>';
+		content += '</tr>';
+		
+		$("#tbl_new_receiving_item tbody").append(content);
+		//$('html, body').animate({scrollTop: $(document).height()}, 'slow'); 
+	}
+}
+
+</script>
+</head>
+
+<body style="margin: 10px">
+<form id="form_new_receiving" action="/cgi/LogisticsService.cgi?action=addReceiving" method="post">
+<div id="div_new_receiving">
+<table id="tbl_new_receiving" style="border:0px;">
+	<tr>
+		<td style="width:140px">Site: <font color="red">*</font></td>
+		<td>
+			<select id="Site" class="notnull" title="Site" style="width:160px" disabled>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:140px">Category: <font color="red">*</font></td>
+		<td>
+			<select id="Category" class="notnull" title="Category" style="width:160px" readonly>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Received in OFA?</td>
+		<td><input id="ReceivedInOFA" value="YES" type="checkbox" style="width:10px;margin:0;padding:0" disabled /></td>
+	</tr>
+	<tr>
+		<td>Courier: </td>
+		<td><input id="Courier" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>Tracking Number: </td>
+		<td><input id="TrackingNumber" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>Vendor: </td>
+		<td><input id="Vendor" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>PO #</td>
+		<td><input id="PO" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>RMA ID:</td>
+		<td><input id="RMAID" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>SSST ID:</td>
+		<td><input id="SSSTID" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>Short Description: </td>
+		<td><input id="ShortDescription" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>Placed Location: <font color="red">*</font></td>
+		<td><input id="PlacedLocation" class="notnull" title="Placed Location" type="text" readonly /></td>
+	</tr>
+	<tr>
+		<td>Comments</td>
+		<td><textarea id="Comments" style="width:400px;" readonly></textarea></td>
+	</tr>
+</table>
+</div>
+</form>
+<form id="form_receiving_items">
+<div style="margin-top:10px;">
+	<table id="tbl_new_receiving_item" cellspacing="0" cellpadding="0">
+		<thead>
+			<tr>
+				<th width="160px">Item Name</th>
+				<th width="160px">Model</th>
+				<th width="160px">SN</th>
+				<th width="160px">Asset Id</th>
+				<th width="80px">Quantity</th>
+				<!-- <th width="90px">Checked-In?</th> -->
+				<th width="120px">Bin</th>
+				<th width="120px">Comments</th>
+			</tr>
+		</thead>
+		
+		<tbody>
+		
+		</tbody>
+	</table>
+</div>
+</form>
+<div style="margin-top:10px">
+	<input type="button" value="Close" id="btn_submit_receiving" onclick="closeNoRefresh()" />
+</div>
+</body>
+</html>
